@@ -2,7 +2,7 @@
 
 from django.db import models
 # from django.utils.timezone import now
-# from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 # Create your models here.
@@ -15,6 +15,7 @@ from django.db import models
 class CarMake(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
+    domestic = models.BooleanField(default=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -29,11 +30,22 @@ class CarMake(models.Model):
 # - Any other fields you would like to include in car model
 # - __str__ method to print a car make object
 class CarModel(models.Model):
-    make = models.ForeignKey(CarMake, on_delete=models.CASCADE)
-    dealer_id = models.IntegerField()
+    car_make = models.ForeignKey(CarMake, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
-    type = models.CharField(max_length=50, choices=[('sedan', 'Sedan'), ('suv', 'SUV'), ('wagon', 'Wagon')])
-    year = models.DateField()
+    CHOICE_TYPE = [
+        ('SEDAN', 'Sedan'),
+        ('SUV', 'SUV'),
+        ('WAGON', 'Wagon'),
+        ('TRUCK', 'Truck'),
+    ]
+    type = models.CharField(max_length=100,
+                            choices=CHOICE_TYPE, default='SEDAN')
+    year = models.IntegerField(default=2023,
+                               validators=[MaxValueValidator(2023),
+                                           MinValueValidator(2015)])
+    electric = models.BooleanField(default=False)
+    used = models.BooleanField(default=False)
+    miles = models.IntegerField(default=0, blank=True)
 
     def __str__(self):
-        return f"{self.make} {self.name}"
+        return self.name
